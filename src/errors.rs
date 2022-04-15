@@ -19,7 +19,7 @@
 use std::error::Error as StdError;
 use std::fmt;
 use tea_codec::error::code::common::{
-    new_common_error_code, UTF8_ENCODING_ERROR, UTF8_STR_ENCODING_ERROR,
+	new_common_error_code, UTF8_ENCODING_ERROR, UTF8_STR_ENCODING_ERROR,
 };
 use tea_codec::error::code::wascc::*;
 use tea_codec::error::TeaError;
@@ -28,81 +28,81 @@ use tea_codec::error::TeaError;
 pub struct Error(Box<ErrorKind>);
 
 pub fn new(kind: ErrorKind) -> Error {
-    Error(Box::new(kind))
+	Error(Box::new(kind))
 }
 
 #[derive(Debug)]
 pub enum ErrorKind {
-    UTF8(std::string::FromUtf8Error),
-    UTF8Str(std::str::Utf8Error),
-    HostError(String),
-    BadDispatch(String),
+	UTF8(std::string::FromUtf8Error),
+	UTF8Str(std::str::Utf8Error),
+	HostError(String),
+	BadDispatch(String),
 }
 
 impl Error {
-    pub fn kind(&self) -> &ErrorKind {
-        &self.0
-    }
+	pub fn kind(&self) -> &ErrorKind {
+		&self.0
+	}
 
-    pub fn into_kind(self) -> ErrorKind {
-        *self.0
-    }
+	pub fn into_kind(self) -> ErrorKind {
+		*self.0
+	}
 }
 
 impl Into<TeaError> for Error {
-    fn into(self) -> TeaError {
-        match *self.0 {
-            ErrorKind::UTF8(e) => {
-                new_common_error_code(UTF8_ENCODING_ERROR).to_error_code(format!("{:?}", e))
-            }
-            ErrorKind::UTF8Str(e) => {
-                new_common_error_code(UTF8_STR_ENCODING_ERROR).to_error_code(format!("{:?}", e))
-            }
-            ErrorKind::HostError(s) => new_wascc_error_code(GENERAL_HOST_ERROR).to_error_code(s),
-            ErrorKind::BadDispatch(s) => new_wascc_error_code(BAD_DISPATCH).to_error_code(s),
-        }
-    }
+	fn into(self) -> TeaError {
+		match *self.0 {
+			ErrorKind::UTF8(e) => {
+				new_common_error_code(UTF8_ENCODING_ERROR).to_error_code(format!("{:?}", e))
+			}
+			ErrorKind::UTF8Str(e) => {
+				new_common_error_code(UTF8_STR_ENCODING_ERROR).to_error_code(format!("{:?}", e))
+			}
+			ErrorKind::HostError(s) => new_wascc_error_code(GENERAL_HOST_ERROR).to_error_code(s),
+			ErrorKind::BadDispatch(s) => new_wascc_error_code(BAD_DISPATCH).to_error_code(s),
+		}
+	}
 }
 
 impl StdError for Error {
-    fn description(&self) -> &str {
-        match *self.0 {
-            ErrorKind::UTF8(_) => "UTF8 encoding failure",
-            ErrorKind::UTF8Str(_) => "UTF8 encoding failure",
-            ErrorKind::HostError(_) => "Host Error",
-            ErrorKind::BadDispatch(_) => "Bad dispatch",
-        }
-    }
+	fn description(&self) -> &str {
+		match *self.0 {
+			ErrorKind::UTF8(_) => "UTF8 encoding failure",
+			ErrorKind::UTF8Str(_) => "UTF8 encoding failure",
+			ErrorKind::HostError(_) => "Host Error",
+			ErrorKind::BadDispatch(_) => "Bad dispatch",
+		}
+	}
 
-    fn cause(&self) -> Option<&dyn StdError> {
-        match *self.0 {
-            ErrorKind::UTF8(ref e) => Some(e),
-            ErrorKind::UTF8Str(ref e) => Some(e),
-            ErrorKind::HostError(_) => None,
-            ErrorKind::BadDispatch(_) => None,
-        }
-    }
+	fn cause(&self) -> Option<&dyn StdError> {
+		match *self.0 {
+			ErrorKind::UTF8(ref e) => Some(e),
+			ErrorKind::UTF8Str(ref e) => Some(e),
+			ErrorKind::HostError(_) => None,
+			ErrorKind::BadDispatch(_) => None,
+		}
+	}
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self.0 {
-            ErrorKind::UTF8(ref e) => write!(f, "UTF8 encoding error: {}", e),
-            ErrorKind::UTF8Str(ref e) => write!(f, "UTF8 error: {}", e),
-            ErrorKind::HostError(ref e) => write!(f, "Host error: {}", e),
-            ErrorKind::BadDispatch(ref e) => write!(f, "Bad dispatch, attempted operation: {}", e),
-        }
-    }
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match *self.0 {
+			ErrorKind::UTF8(ref e) => write!(f, "UTF8 encoding error: {}", e),
+			ErrorKind::UTF8Str(ref e) => write!(f, "UTF8 error: {}", e),
+			ErrorKind::HostError(ref e) => write!(f, "Host error: {}", e),
+			ErrorKind::BadDispatch(ref e) => write!(f, "Bad dispatch, attempted operation: {}", e),
+		}
+	}
 }
 
 impl From<std::str::Utf8Error> for Error {
-    fn from(source: std::str::Utf8Error) -> Error {
-        Error(Box::new(ErrorKind::UTF8Str(source)))
-    }
+	fn from(source: std::str::Utf8Error) -> Error {
+		Error(Box::new(ErrorKind::UTF8Str(source)))
+	}
 }
 
 impl From<std::string::FromUtf8Error> for Error {
-    fn from(source: std::string::FromUtf8Error) -> Error {
-        Error(Box::new(ErrorKind::UTF8(source)))
-    }
+	fn from(source: std::string::FromUtf8Error) -> Error {
+		Error(Box::new(ErrorKind::UTF8(source)))
+	}
 }
