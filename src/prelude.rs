@@ -18,4 +18,4 @@ pub use crate::host_call;
 pub use crate::wapc_handler;
 pub use crate::Result;
 
-pub type CallResult = ::std::result::Result<Vec<u8>, Box<dyn std::error::Error>>;
+pub type CallResult = tea_codec::error::TeaResult<Vec<u8>>;

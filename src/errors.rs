@@ -18,6 +18,11 @@
 
 use std::error::Error as StdError;
 use std::fmt;
+use tea_codec::error::code::common::{
+    new_common_error_code, UTF8_ENCODING_ERROR, UTF8_STR_ENCODING_ERROR,
+};
+use tea_codec::error::code::wascc::*;
+use tea_codec::error::TeaError;
 
 #[derive(Debug)]
 pub struct Error(Box<ErrorKind>);
@@ -41,6 +46,21 @@ impl Error {
 
     pub fn into_kind(self) -> ErrorKind {
         *self.0
+    }
+}
+
+impl Into<TeaError> for Error {
+    fn into(self) -> TeaError {
+        match *self.0 {
+            ErrorKind::UTF8(e) => {
+                new_common_error_code(UTF8_ENCODING_ERROR).to_error_code(format!("{:?}", e))
+            }
+            ErrorKind::UTF8Str(e) => {
+                new_common_error_code(UTF8_STR_ENCODING_ERROR).to_error_code(format!("{:?}", e))
+            }
+            ErrorKind::HostError(s) => new_wascc_error_code(GENERAL_HOST_ERROR).to_error_code(s),
+            ErrorKind::BadDispatch(s) => new_wascc_error_code(BAD_DISPATCH).to_error_code(s),
+        }
     }
 }
 

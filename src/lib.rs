@@ -24,6 +24,9 @@
 //! ```
 //! extern crate wapc_guest as guest;
 //!
+//! use tea_codec::error::code::wascc::{BAD_DISPATCH, WasccErrorCode};
+//! use tea_codec::error::TeaError;
+//! use guest::errors::{Error, ErrorKind, new};
 //! use guest::prelude::*;
 //!
 //! wapc_handler!(handle_wapc);
@@ -31,7 +34,7 @@
 //! pub fn handle_wapc(operation: &str, msg: &[u8]) -> CallResult {
 //!     match operation {
 //!         "sample:Guest!Hello" => hello_world(msg),
-//!         _ => Err("bad dispatch".into()),
+//!         _ => Err(new(ErrorKind::BadDispatch("".into())).into()),
 //!     }     
 //! }
 //!
@@ -41,6 +44,8 @@
 //!     Ok(vec![])
 //! }
 //! ```
+
+use tea_codec::error::TeaResult;
 
 /// WaPC Guest SDK result type
 pub type Result<T> = std::result::Result<T, errors::Error>;
@@ -68,7 +73,7 @@ extern "C" {
 }
 
 /// The function through which all host calls take place.
-pub fn host_call(binding: &str, ns: &str, op: &str, msg: &[u8]) -> Result<Vec<u8>> {
+pub fn host_call(binding: &str, ns: &str, op: &str, msg: &[u8]) -> TeaResult<Vec<u8>> {
     let callresult = unsafe {
         __host_call(
             binding.as_ptr() as _,
@@ -92,7 +97,8 @@ pub fn host_call(binding: &str, ns: &str, op: &str, msg: &[u8]) -> Result<Vec<u8
         };
         Err(errors::new(errors::ErrorKind::HostError(
             String::from_utf8(slice.to_vec()).unwrap(),
-        )))
+        ))
+        .into())
     } else {
         // call succeeded
         let len = unsafe { __host_response_len() };
