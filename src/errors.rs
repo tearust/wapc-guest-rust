@@ -52,14 +52,16 @@ impl Error {
 impl Into<TeaError> for Error {
 	fn into(self) -> TeaError {
 		match *self.0 {
-			ErrorKind::UTF8(e) => {
-				new_common_error_code(UTF8_ENCODING_ERROR).to_error_code(format!("{:?}", e))
+			ErrorKind::UTF8(e) => new_common_error_code(UTF8_ENCODING_ERROR)
+				.to_error_code(Some(format!("{:?}", e)), None),
+			ErrorKind::UTF8Str(e) => new_common_error_code(UTF8_STR_ENCODING_ERROR)
+				.to_error_code(Some(format!("{:?}", e)), None),
+			ErrorKind::HostError(s) => {
+				new_wascc_error_code(GENERAL_HOST_ERROR).to_error_code(Some(s), None)
 			}
-			ErrorKind::UTF8Str(e) => {
-				new_common_error_code(UTF8_STR_ENCODING_ERROR).to_error_code(format!("{:?}", e))
+			ErrorKind::BadDispatch(s) => {
+				new_wascc_error_code(BAD_DISPATCH).to_error_code(Some(s), None)
 			}
-			ErrorKind::HostError(s) => new_wascc_error_code(GENERAL_HOST_ERROR).to_error_code(s),
-			ErrorKind::BadDispatch(s) => new_wascc_error_code(BAD_DISPATCH).to_error_code(s),
 		}
 	}
 }
