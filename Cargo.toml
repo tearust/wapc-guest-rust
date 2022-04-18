@@ -15,4 +15,4 @@ categories = ["wasm", "api-bindings"]
 travis-ci = { repository = "wapc/wapc-guest-rust", branch = "master" }
 
 [dependencies]
-tea-codec = { path = "../tea-codec" }
+tea-codec = { git = "https://github.com/tearust/tea-codec", branch = "dev" }
