@@ -18,11 +18,8 @@
 
 use std::error::Error as StdError;
 use std::fmt;
-use tea_codec::error::code::common::{
-	new_common_error_code, UTF8_ENCODING_ERROR, UTF8_STR_ENCODING_ERROR,
-};
 use tea_codec::error::code::wascc::*;
-use tea_codec::error::TeaError;
+use tea_codec::error::{new_common_error_code, CommonCode, TeaError};
 
 #[derive(Debug)]
 pub struct Error(Box<ErrorKind>);
@@ -52,15 +49,15 @@ impl Error {
 impl Into<TeaError> for Error {
 	fn into(self) -> TeaError {
 		match *self.0 {
-			ErrorKind::UTF8(e) => new_common_error_code(UTF8_ENCODING_ERROR)
+			ErrorKind::UTF8(e) => new_common_error_code(CommonCode::UTF8EncodingError)
 				.to_error_code(Some(format!("{:?}", e)), None),
-			ErrorKind::UTF8Str(e) => new_common_error_code(UTF8_STR_ENCODING_ERROR)
+			ErrorKind::UTF8Str(e) => new_common_error_code(CommonCode::Utf8StrEncodingError)
 				.to_error_code(Some(format!("{:?}", e)), None),
 			ErrorKind::HostError(s) => {
-				new_wascc_error_code(GENERAL_HOST_ERROR).to_error_code(Some(s), None)
+				new_wascc_error_code(WasccCode::GeneralHostError).to_error_code(Some(s), None)
 			}
 			ErrorKind::BadDispatch(s) => {
-				new_wascc_error_code(BAD_DISPATCH).to_error_code(Some(s), None)
+				new_wascc_error_code(WasccCode::BadDispatch).to_error_code(Some(s), None)
 			}
 		}
 	}

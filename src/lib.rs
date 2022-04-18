@@ -24,8 +24,7 @@
 //! ```
 //! extern crate wapc_guest as guest;
 //!
-//! use tea_codec::error::code::wascc::{BAD_DISPATCH, WasccErrorCode};
-//! use tea_codec::error::TeaError;
+//! use tea_codec::error::{new_common_error_code, CommonCode, TeaError};
 //! use guest::errors::{Error, ErrorKind, new};
 //! use guest::prelude::*;
 //!
