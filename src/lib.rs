@@ -44,6 +44,7 @@
 //! }
 //! ```
 
+use tea_codec::deserialize;
 use tea_codec::error::TeaResult;
 
 /// WaPC Guest SDK result type
@@ -94,10 +95,7 @@ pub fn host_call(binding: &str, ns: &str, op: &str, msg: &[u8]) -> TeaResult<Vec
 			__host_error(retptr);
 			std::slice::from_raw_parts(retptr as _, errlen as _)
 		};
-		Err(errors::new(errors::ErrorKind::HostError(
-			String::from_utf8(slice.to_vec()).unwrap(),
-		))
-		.into())
+		Err(deserialize(slice)?)
 	} else {
 		// call succeeded
 		let len = unsafe { __host_response_len() };
