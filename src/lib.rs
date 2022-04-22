@@ -115,6 +115,7 @@ macro_rules! wapc_handler {
 		#[no_mangle]
 		pub extern "C" fn __guest_call(op_len: i32, req_len: i32) -> i32 {
 			use std::slice;
+			use tea_codec::serialize;
 			use $crate::console_log;
 
 			let buf: Vec<u8> = Vec::with_capacity(req_len as _);
@@ -139,10 +140,14 @@ macro_rules! wapc_handler {
 					1
 				},
 				Err(e) => {
-					let errmsg = format!("Guest call failed: {}", e);
-					console_log(&errmsg);
-					unsafe {
-						$crate::__guest_error(errmsg.as_ptr(), errmsg.len() as _);
+					console_log(&format!("Guest call failed: {:?}", e));
+					match serialize(&e) {
+						Ok(errmsg) => unsafe {
+							$crate::__guest_error(errmsg.as_ptr(), errmsg.len() as _);
+						},
+						Err(err) => {
+							console_log(&format!("guest call error serializing failed: {:?}", err))
+						}
 					}
 					0
 				}
