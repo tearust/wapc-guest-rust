@@ -140,7 +140,7 @@ macro_rules! wapc_handler {
 					1
 				},
 				Err(e) => {
-					console_log(&format!("Guest call failed: {:?}", e));
+					//console_log(&format!("Guest call failed: {:?}", e));
 					match serialize(&e) {
 						Ok(errmsg) => unsafe {
 							$crate::__guest_error(errmsg.as_ptr(), errmsg.len() as _);
