@@ -16,8 +16,6 @@
 //!
 //! This module contains types and utility functions for error handling
 
-use std::error::Error as StdError;
-use std::fmt;
 use tea_codec::error::code::wascc::*;
 use tea_codec::error::{new_common_error_code, CommonCode, TeaError};
 
@@ -59,37 +57,6 @@ impl Into<TeaError> for Error {
 			ErrorKind::BadDispatch(s) => {
 				new_wascc_error_code(WasccCode::BadDispatch).to_error_code(Some(s), None)
 			}
-		}
-	}
-}
-
-impl StdError for Error {
-	fn description(&self) -> &str {
-		match *self.0 {
-			ErrorKind::UTF8(_) => "UTF8 encoding failure",
-			ErrorKind::UTF8Str(_) => "UTF8 encoding failure",
-			ErrorKind::HostError(_) => "Host Error",
-			ErrorKind::BadDispatch(_) => "Bad dispatch",
-		}
-	}
-
-	fn cause(&self) -> Option<&dyn StdError> {
-		match *self.0 {
-			ErrorKind::UTF8(ref e) => Some(e),
-			ErrorKind::UTF8Str(ref e) => Some(e),
-			ErrorKind::HostError(_) => None,
-			ErrorKind::BadDispatch(_) => None,
-		}
-	}
-}
-
-impl fmt::Display for Error {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		match *self.0 {
-			ErrorKind::UTF8(ref e) => write!(f, "UTF8 encoding error: {}", e),
-			ErrorKind::UTF8Str(ref e) => write!(f, "UTF8 error: {}", e),
-			ErrorKind::HostError(ref e) => write!(f, "Host error: {}", e),
-			ErrorKind::BadDispatch(ref e) => write!(f, "Bad dispatch, attempted operation: {}", e),
 		}
 	}
 }
