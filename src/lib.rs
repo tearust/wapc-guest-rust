@@ -24,8 +24,7 @@
 //! ```
 //! extern crate wapc_guest as guest;
 //!
-//! use tea_codec::error::{new_common_error_code, CommonCode, TeaError};
-//! use guest::errors::{Error, ErrorKind, new};
+//! use guest::error::BadDispatch;
 //! use guest::prelude::*;
 //!
 //! wapc_handler!(handle_wapc);
@@ -33,7 +32,7 @@
 //! pub fn handle_wapc(operation: &str, msg: &[u8]) -> CallResult {
 //!     match operation {
 //!         "sample:Guest!Hello" => hello_world(msg),
-//!         _ => Err(new(ErrorKind::BadDispatch("".into())).into()),
+//!         _ => Err(BadDispatch("".into()).into()),
 //!     }     
 //! }
 //!
@@ -44,11 +43,13 @@
 //! }
 //! ```
 
+#![feature(generic_associated_types)]
+#![feature(min_specialization)]
+
 use tea_codec::deserialize;
-use tea_codec::error::TeaResult;
 
 /// WaPC Guest SDK result type
-pub type Result<T> = std::result::Result<T, errors::Error>;
+pub use error::Result;
 
 #[link(wasm_import_module = "wapc")]
 extern "C" {
@@ -73,7 +74,7 @@ extern "C" {
 }
 
 /// The function through which all host calls take place.
-pub fn host_call(binding: &str, ns: &str, op: &str, msg: &[u8]) -> TeaResult<Vec<u8>> {
+pub fn host_call(binding: &str, ns: &str, op: &str, msg: &[u8]) -> Result<Vec<u8>> {
 	let callresult = unsafe {
 		__host_call(
 			binding.as_ptr() as _,
@@ -164,5 +165,5 @@ pub fn console_log(s: &str) {
 	}
 }
 
-pub mod errors;
+pub mod error;
 pub mod prelude;
